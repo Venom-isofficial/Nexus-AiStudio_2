@@ -1,57 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} { allow read, write: if false; }
-    
-    function isValidId(id) { 
-      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
-    }
-    
-    function incoming() { return request.resource.data; }
-    function existing() { return resource.data; }
-    function isSignedIn() { return request.auth != null; }
-    function isOwner(userId) { 
-      return isSignedIn() && request.auth.uid == userId; 
-    }
-    function isVerifiedOwner(userId) {
-      return isOwner(userId) && request.auth.token.email_verified == true;
-    }
-    
-    function isValidBookmark(data) {
-      return data.keys().hasAll(['id', 'headline', 'category', 'sentiment', 'sentimentLabel', 'publishedAt', 'sources', 'createdAt']) && 
-             data.keys().size() == 8 &&
-             data.id is string && data.id.size() <= 200 &&
-             data.headline is string && data.headline.size() <= 1000 &&
-             data.category is string && data.category.size() <= 100 &&
-             data.sentiment is string && data.sentiment.size() <= 100 &&
-             data.sentimentLabel is string && data.sentimentLabel.size() <= 100 &&
-             data.publishedAt is number &&
-             data.sources is list && data.sources.size() <= 50 &&
-             (data.sources.size() == 0 || data.sources[0] is string) &&
-             data.createdAt == request.time;
-    }
-    
-    function isValidWatchlistItem(data) {
-      return data.keys().hasAll(['id', 'createdAt']) && data.keys().size() == 2 &&
-             data.id is string && data.id.size() <= 200 &&
-             data.createdAt == request.time;
-    }
-    
-    match /users/{userId} {
-      match /bookmarks/{bookmarkId} {
-        allow read: if isOwner(userId);
-        allow create: if isVerifiedOwner(userId) && isValidId(userId) && isValidId(bookmarkId) && isValidBookmark(incoming());
-        allow update: if false;
-        allow delete: if isVerifiedOwner(userId) && isValidId(userId) && isValidId(bookmarkId);
-      }
-      
-      match /watchlist/{watchlistId} {
-        allow read: if isOwner(userId);
-        allow create: if isVerifiedOwner(userId) && isValidId(userId) && isValidId(watchlistId) && isValidWatchlistItem(incoming());
-        allow update: if false;
-        allow delete: if isVerifiedOwner(userId) && isValidId(userId) && isValidId(watchlistId);
-      }
+    match /{document=**} { 
+      allow read, write: if true; 
     }
   }
 }
-// End of rules

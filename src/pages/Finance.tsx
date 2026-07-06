@@ -8,29 +8,51 @@ import { useNavigate } from 'react-router-dom';
 const AssetCard: React.FC<{ asset: AssetData; isWatchlisted: boolean; onToggleWatchlist: (id: string) => void }> = ({ asset, isWatchlisted, onToggleWatchlist }) => {
   const isPositive = asset.change >= 0;
   return (
-    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 md:p-6 mb-4 flex items-center justify-between transition-colors hover:bg-white/10">
-      <div className="flex items-center gap-4">
-        <div 
-          onClick={() => onToggleWatchlist(asset.id)}
-          className="cursor-pointer"
-        >
-          <Star size={20} className={isWatchlisted ? 'text-amber-400 fill-amber-400' : 'text-slate-600 hover:text-slate-400 transition-colors'} />
+    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 md:p-6 mb-4 flex flex-col transition-colors hover:bg-white/10">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div 
+            onClick={() => onToggleWatchlist(asset.id)}
+            className="cursor-pointer"
+          >
+            <Star size={20} className={isWatchlisted ? 'text-amber-400 fill-amber-400' : 'text-slate-600 hover:text-slate-400 transition-colors'} />
+          </div>
+          <div>
+            <div className="font-bold text-lg md:text-xl text-slate-100 flex items-center gap-2">
+              {asset.ticker}
+              {asset.sentimentLabel && (
+                <span className={`text-[0.65rem] uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  asset.sentimentLabel.toLowerCase() === 'bullish' ? 'bg-emerald-500/20 text-emerald-400' : 
+                  asset.sentimentLabel.toLowerCase() === 'bearish' ? 'bg-red-500/20 text-red-400' : 
+                  'bg-slate-500/20 text-slate-400'
+                }`}>
+                  {asset.sentimentLabel}
+                </span>
+              )}
+            </div>
+            <div className="text-xs md:text-sm text-slate-400">{asset.name}</div>
+          </div>
         </div>
-        <div>
-          <div className="font-bold text-lg md:text-xl text-slate-100">{asset.ticker}</div>
-          <div className="text-xs md:text-sm text-slate-400">{asset.name}</div>
+        
+        <div className="flex flex-col items-end">
+          <div className="font-bold text-base md:text-lg text-slate-100">
+            {asset.category === 'Forex' ? '' : '$'}{asset.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+          </div>
+          <div className={`flex items-center gap-1 text-xs md:text-sm font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+            {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {isPositive ? '+' : ''}{asset.change.toFixed(2)}%
+          </div>
         </div>
       </div>
       
-      <div className="flex flex-col items-end">
-        <div className="font-bold text-base md:text-lg text-slate-100">
-          {asset.category === 'Forex' ? '' : '$'}{asset.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+      {asset.sentiment30d !== undefined && (
+        <div className="mt-2 pt-4 border-t border-white/10 flex justify-between items-center text-xs">
+          <div className="text-slate-400">AI Sentiment (30d)</div>
+          <div className={`font-medium ${asset.sentiment30d >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            {asset.sentiment30d > 0 ? '+' : ''}{(asset.sentiment30d * 100).toFixed(0)}%
+          </div>
         </div>
-        <div className={`flex items-center gap-1 text-xs md:text-sm font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
-          {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-          {isPositive ? '+' : ''}{asset.change.toFixed(2)}%
-        </div>
-      </div>
+      )}
     </div>
   );
 };

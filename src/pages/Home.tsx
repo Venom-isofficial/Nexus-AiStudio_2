@@ -38,16 +38,16 @@ const SentimentBadge: React.FC<{ sentimentLabel: string }> = ({ sentimentLabel }
   );
 };
 
-const LedTicker: React.FC<{ materiality: string; corroborationCount: number }> = ({ materiality, corroborationCount }) => (
+const LedTicker: React.FC<{ materiality?: string; corroborationCount?: number }> = ({ materiality, corroborationCount }) => (
   <div className="overflow-hidden whitespace-nowrap box-border bg-white/5 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-white/10 mt-2">
     <div className="inline-block pl-[100%] animate-[marquee_15s_linear_infinite] font-mono text-[0.85rem] text-indigo-400 font-semibold tracking-wide" style={{ textShadow: '0 0 5px rgba(129,140,248,0.6)' }}>
-      IMPACT: {materiality.toUpperCase()} | CORROBORATED BY {corroborationCount} SOURCES
+      {materiality && `IMPACT: ${materiality.toUpperCase()} | `} {corroborationCount !== undefined && `CORROBORATED BY ${corroborationCount} SOURCES`}
     </div>
   </div>
 );
 
 const ReadThroughRow: React.FC<{ nodes?: { ticker: string; correlation: number; relationship: string }[] }> = ({ nodes }) => {
-  if (!nodes || nodes.length === 0) return null;
+  if (!nodes || !Array.isArray(nodes) || nodes.length === 0) return null;
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar py-2">
       <div className="text-[0.65rem] text-slate-500 uppercase tracking-widest self-center shrink-0 mr-2 font-bold">Read-Through</div>
@@ -82,7 +82,7 @@ const NewsCard: React.FC<{ article: NewsArticle; isBookmarked: boolean; onToggle
           <p className="m-0 text-sm text-slate-400">via {article.sources.join(', ')}</p>
         )}
         <div className="my-3 space-y-2">
-          {article.keyTakeaways?.map((takeaway, idx) => (
+          {Array.isArray(article.keyTakeaways) && article.keyTakeaways.map((takeaway, idx) => (
             <div key={idx} className="flex gap-3 text-[0.95rem] md:text-base leading-snug text-slate-300">
               <span className="text-indigo-400">•</span>
               <span>{takeaway}</span>
@@ -90,7 +90,7 @@ const NewsCard: React.FC<{ article: NewsArticle; isBookmarked: boolean; onToggle
           ))}
         </div>
         <ReadThroughRow nodes={article.readThrough} />
-        {(article.materiality || article.corroborationCount > 0) && (
+        {(article.materiality || (article.corroborationCount !== undefined && article.corroborationCount > 0)) && (
           <LedTicker materiality={article.materiality} corroborationCount={article.corroborationCount} />
         )}
       </GlassCard>
