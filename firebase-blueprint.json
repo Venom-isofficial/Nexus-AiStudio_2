@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "Bookmark": {
+      "title": "Bookmark",
+      "description": "An article bookmarked by a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "headline": { "type": "string" },
+        "category": { "type": "string" },
+        "sentiment": { "type": "string" },
+        "sentimentLabel": { "type": "string" },
+        "publishedAt": { "type": "number" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "number", "description": "Timestamp when bookmarked" }
+      },
+      "required": ["id", "headline", "category", "createdAt"]
+    },
+    "WatchlistItem": {
+      "title": "WatchlistItem",
+      "description": "An asset added to a user's watchlist.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/bookmarks/{bookmarkId}": {
+      "schema": { "$ref": "#/entities/Bookmark" },
+      "description": "A user's saved news bookmarks."
+    },
+    "/users/{userId}/watchlist/{watchlistId}": {
+      "schema": { "$ref": "#/entities/WatchlistItem" },
+      "description": "A user's saved assets on their watchlist."
+    }
+  }
+}
